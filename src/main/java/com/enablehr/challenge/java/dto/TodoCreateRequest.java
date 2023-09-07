@@ -1,12 +1,22 @@
 package com.enablehr.challenge.java.dto;
 
-public class TodoRequest {
+import com.enablehr.challenge.java.entity.Todo;
+
+public class TodoCreateRequest {
   private String text;
   private boolean isCompleted;
-  
-  public TodoRequest() { }
 
-  public TodoRequest(String text, boolean isCompleted) {
+  public Todo toEntity() {
+    Todo todo = new Todo();
+    todo.setCompleted(isCompleted);
+    todo.setText(text);
+    return todo;
+  }
+  
+  // constructors, getters, setters
+  public TodoCreateRequest() { }
+
+  public TodoCreateRequest(String text, boolean isCompleted) {
     this.text = text;
     this.isCompleted = isCompleted;
   }

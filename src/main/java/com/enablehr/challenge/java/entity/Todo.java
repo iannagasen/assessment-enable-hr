@@ -17,8 +17,7 @@ public class Todo extends AbstractPersistable<Integer> {
   @Column(nullable = false)
   private String text;
 
-  private boolean cleared;
-
+  private boolean cleared = false;
 
   public String getText() {
     return text;
