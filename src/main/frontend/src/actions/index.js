@@ -1,7 +1,7 @@
 import * as types from '../constants/ActionTypes'
 import fetch from 'isomorphic-fetch';
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://localhost:8080/api';
 
 export function receiveTodos(todos) {
 	return { type: types.RECEIVE_TODOS, todos }
@@ -43,7 +43,7 @@ export function fetchTodos() {
 
 export function addTodo(text) {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todo`,
+	    return fetch(`${BASE_URL}/todos`,
 	    	{
 	    		method: 'POST',
 	    		headers: JSON_HEADERS,
@@ -57,11 +57,10 @@ export function addTodo(text) {
 
 export function deleteTodo(id) {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todo`,
+	    return fetch(`${BASE_URL}/todos/${id}`,
 	    	{
 	    		method: 'DELETE',
 	    		headers: JSON_HEADERS,
-	    	  	body: JSON.stringify({ id })
 	    	}
     	  )
 	      .then(json => dispatch(deleteTodoDispatch(id)))
@@ -70,11 +69,11 @@ export function deleteTodo(id) {
 
 export function editTodo(id, text) {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todo`,
+	    return fetch(`${BASE_URL}/todos/${id}`,
 	    	{
 	    		method: 'PUT',
 	    		headers: JSON_HEADERS,
-	    	  	body: JSON.stringify({ id, text })
+					body: JSON.stringify({ text })
 	    	}
     	  )
 	      .then(response => response.json())
@@ -82,13 +81,12 @@ export function editTodo(id, text) {
   	}
 }
 
-export function completeTodo(id) {
+export function completeTodo(id, completed) {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todo/complete`,
+	    return fetch(`${BASE_URL}/todos/${id}?completed=${completed}`,
 	    	{
-	    		method: 'POST',
+	    		method: 'PATCH',
 	    		headers: JSON_HEADERS,
-	    	  	body: JSON.stringify({ id })
 	    	}
     	  )
 	      .then(response => response.json())
@@ -98,9 +96,9 @@ export function completeTodo(id) {
 
 export function completeAll() {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todos/complete`,
+	    return fetch(`${BASE_URL}/todos/action/toggle-complete`,
 	    	{
-	    		method: 'POST',
+	    		method: 'PUT',
 	    		headers: JSON_HEADERS
 	    	}
     	  )
@@ -111,9 +109,9 @@ export function completeAll() {
 
 export function clearCompleted() {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todos/clear`,
+	    return fetch(`${BASE_URL}/todos/action/clear-completed`,
 	    	{
-	    		method: 'POST',
+	    		method: 'PUT',
 	    		headers: JSON_HEADERS
 	    	}
     	  )
