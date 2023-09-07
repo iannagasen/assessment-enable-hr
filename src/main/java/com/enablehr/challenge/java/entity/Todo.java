@@ -19,6 +19,11 @@ public class Todo extends AbstractPersistable<Integer> {
 
   private boolean cleared = false;
 
+  public Todo updateText(String updatedText) {
+    setText(updatedText);
+    return this;
+  }
+
   public String getText() {
     return text;
   }

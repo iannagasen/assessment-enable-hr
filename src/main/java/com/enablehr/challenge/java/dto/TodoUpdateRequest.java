@@ -1,26 +1,18 @@
 package com.enablehr.challenge.java.dto;
 
 public class TodoUpdateRequest {
-  private int id;
-  private String updatedText;
+  private String text;
 
   public TodoUpdateRequest() { }
   
-  public TodoUpdateRequest(int id, String updatedText) {
-    this.id = id;
-    this.updatedText = updatedText;
+  public TodoUpdateRequest(String text) {
+    this.text = text;
   }
 
-  public int getId() {
-    return id;
+  public String getText() {
+    return text;
   }
-  public void setId(int id) {
-    this.id = id;
-  }
-  public String getUpdatedText() {
-    return updatedText;
-  }
-  public void setUpdatedText(String updatedText) {
-    this.updatedText = updatedText;
+  public void setText(String text) {
+    this.text = text;
   }
 }
