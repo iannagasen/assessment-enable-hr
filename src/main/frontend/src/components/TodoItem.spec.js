@@ -61,7 +61,7 @@ describe('components', () => {
       const { output, props } = setup();
       const input = output.props.children.props.children[0];
       input.props.onChange({});
-      expect(props.completeTodo).toBeCalledWith(0)
+      expect(props.completeTodo).toBeCalledWith(0, true)
     });
 
     it('button onClick should call deleteTodo', () => {
