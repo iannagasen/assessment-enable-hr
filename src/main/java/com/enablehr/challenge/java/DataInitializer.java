@@ -4,15 +4,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.enablehr.challenge.java.entity.Todo;
+import com.enablehr.challenge.java.entity.TodoGroup;
+import com.enablehr.challenge.java.repository.TodoGroupRepository;
 import com.enablehr.challenge.java.repository.TodoRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
 
   private final TodoRepository todoRepository;
+  private final TodoGroupRepository todoGroupRepository;
 
-  public DataInitializer(TodoRepository todoRepository) {
+  public DataInitializer(TodoRepository todoRepository, TodoGroupRepository todoGroupRepository) {
     this.todoRepository = todoRepository;
+    this.todoGroupRepository = todoGroupRepository;
   }
 
   @Override
@@ -31,6 +35,11 @@ public class DataInitializer implements CommandLineRunner {
     t3.setCompleted(false);
     t3.setText("Pass the test");
     todoRepository.save(t3);
+
+    // Create group
+    TodoGroup g1 = new TodoGroup();
+    g1.setGroupName("DEFAULT");
+    todoGroupRepository.save(g1);
   }
   
 }

@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.enablehr.challenge.java.dto.TodoCreateRequest;
+import com.enablehr.challenge.java.dto.TodoGroupUpdateRequest;
 import com.enablehr.challenge.java.dto.TodoResponse;
 import com.enablehr.challenge.java.dto.TodoUpdateRequest;
 import com.enablehr.challenge.java.entity.Todo;
 import com.enablehr.challenge.java.entity.TodoGroup;
+import com.enablehr.challenge.java.exceptions.TodoGroupNotFoundException;
 import com.enablehr.challenge.java.exceptions.TodoNotFoundException;
 import com.enablehr.challenge.java.repository.TodoGroupRepository;
 import com.enablehr.challenge.java.repository.TodoRepository;
@@ -26,7 +28,11 @@ public class TodoService {
   }
   
   public List<TodoResponse> getAllTodos() {
-    return todoRepository.findAllUnclearedTodos();
+    return todoRepository.findAllActiveTodos();
+  }
+
+  public List<TodoResponse> getAllTodos(String group) {
+    return todoRepository.findAllActiveTodos(group);
   }
 
   @Transactional
@@ -39,10 +45,11 @@ public class TodoService {
   @Transactional
   public TodoResponse createWithGroup(String group, TodoCreateRequest req) {
     TodoGroup todoGroup = todoGroupRepository
-        .findByGroup(group)
+        .findByGroupName(group)
         .orElseGet(() -> todoGroupRepository.save(new TodoGroup(group)));
     Todo todo = todoGroup.addTodo(req.toEntity());
-    return TodoResponse.fromEntity(todo);
+    Todo savedTodo = todoRepository.save(todo);
+    return TodoResponse.fromEntity(savedTodo);
   }
 
   @Transactional
@@ -71,19 +78,34 @@ public class TodoService {
   @Transactional
   public List<TodoResponse> clearCompleted() {
     todoRepository.clearCompletedTodos();
-    return todoRepository.findAllUnclearedTodos();
+    return todoRepository.findAllActiveTodos();
   }
 
   @Transactional
   public List<TodoResponse> completeAll() {
     todoRepository.completeAll();
-    return todoRepository.findAllUnclearedTodos();
+    return todoRepository.findAllActiveTodos();
   }
 
   @Transactional
   public List<TodoResponse> uncompleteAll() {
     todoRepository.uncompleteAll();
-    return todoRepository.findAllUnclearedTodos();
+    return todoRepository.findAllActiveTodos();
+  }
+
+  @Transactional
+  public Integer createTodoGroup(String group) {
+    TodoGroup savedGroup = todoGroupRepository.save(new TodoGroup(group));
+    return savedGroup.getId();
+  }
+
+  @Transactional
+  public String updateGroupName(String group, TodoGroupUpdateRequest req) {
+    TodoGroup todoGroup = todoGroupRepository
+        .findByGroupName(group)
+        .orElseThrow(() -> TodoGroupNotFoundException.withName(req.getGroupName()));
+    todoGroup.setGroupName(req.getGroupName());
+    return todoGroup.getGroupName();
   }
 
 }

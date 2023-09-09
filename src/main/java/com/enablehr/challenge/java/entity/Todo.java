@@ -20,6 +20,21 @@ public class Todo extends AbstractPersistable<Integer> {
 
   private boolean cleared = false;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  private TodoGroup todoGroup;
+  
+  public Todo updateText(String updatedText) {
+    setText(updatedText);
+    return this;
+  }
+  
+  // constructors, getters, setters
+  public TodoGroup getTodoGroup() {
+    return todoGroup;
+  }
+  public void setTodoGroup(TodoGroup todoGroup) {
+    this.todoGroup = todoGroup;
+  }
   public String getText() {
     return text;
   }

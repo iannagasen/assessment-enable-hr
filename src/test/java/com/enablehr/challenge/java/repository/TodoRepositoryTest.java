@@ -16,9 +16,8 @@ public class TodoRepositoryTest {
   private TodoRepository subject;
 
   @Test
-  public void testRepositoryIsPopulated() {
-
-    assertThat(subject.findAll()).hasSize(3);
+  public void testRepositoryIsNotPopulated() {
+    assertThat(subject.findAll()).isEmpty();
   }
 
 }

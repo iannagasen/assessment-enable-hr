@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toCollection;
 
 
-// @RestController
+@RestController
 @CrossOrigin
 public class TodoInMemoryController {
 
