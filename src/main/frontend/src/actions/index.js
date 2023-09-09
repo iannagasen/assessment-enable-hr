@@ -96,10 +96,11 @@ export function completeTodo(id, completed) {
 
 export function completeAll() {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todos/action/toggle-complete`,
+	    return fetch(`${BASE_URL}/todos`,
 	    	{
 	    		method: 'PUT',
-	    		headers: JSON_HEADERS
+	    		headers: JSON_HEADERS,
+					body: JSON.stringify({ action: 'complete' }),
 	    	}
     	  )
 	      .then(response => response.json())
@@ -107,12 +108,27 @@ export function completeAll() {
   	}
 }
 
+export function uncompleteAll() {
+	return function (dispatch) {
+		return fetch(`${BASE_URL}/todos`,
+			{
+				method: 'PUT',
+				headers: JSON_HEADERS,
+				body: JSON.stringify({ action: 'uncomplete'}),
+			}
+			)
+			.then(response => response.json())
+			.then(json => dispatch(completeAllDispatch(json)))
+	}
+}
+
 export function clearCompleted() {
     return function (dispatch) {
-	    return fetch(`${BASE_URL}/todos/action/clear-completed`,
+	    return fetch(`${BASE_URL}/todos`,
 	    	{
 	    		method: 'PUT',
-	    		headers: JSON_HEADERS
+	    		headers: JSON_HEADERS,
+					body: JSON.stringify({ action: 'clear' })
 	    	}
     	  )
 	      .then(response => response.json())

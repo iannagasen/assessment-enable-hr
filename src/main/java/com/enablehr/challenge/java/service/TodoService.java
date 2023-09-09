@@ -9,16 +9,20 @@ import com.enablehr.challenge.java.dto.TodoCreateRequest;
 import com.enablehr.challenge.java.dto.TodoResponse;
 import com.enablehr.challenge.java.dto.TodoUpdateRequest;
 import com.enablehr.challenge.java.entity.Todo;
+import com.enablehr.challenge.java.entity.TodoGroup;
 import com.enablehr.challenge.java.exceptions.TodoNotFoundException;
+import com.enablehr.challenge.java.repository.TodoGroupRepository;
 import com.enablehr.challenge.java.repository.TodoRepository;
 
 @Service
 public class TodoService {
   
   private final TodoRepository todoRepository;
+  private final TodoGroupRepository todoGroupRepository;
 
-  public TodoService(TodoRepository todoRepository) {
+  public TodoService(TodoRepository todoRepository, TodoGroupRepository todoGroupRepository) {
     this.todoRepository = todoRepository;
+    this.todoGroupRepository = todoGroupRepository;
   }
   
   public List<TodoResponse> getAllTodos() {
@@ -26,10 +30,19 @@ public class TodoService {
   }
 
   @Transactional
-  public TodoResponse create(TodoCreateRequest request) {
-    Todo todo = request.toEntity();
+  public TodoResponse create(TodoCreateRequest req) {
+    Todo todo = req.toEntity();
     Todo savedTodo = todoRepository.save(todo);
     return TodoResponse.fromEntity(savedTodo);
+  }
+
+  @Transactional
+  public TodoResponse createWithGroup(String group, TodoCreateRequest req) {
+    TodoGroup todoGroup = todoGroupRepository
+        .findByGroup(group)
+        .orElseGet(() -> todoGroupRepository.save(new TodoGroup(group)));
+    Todo todo = todoGroup.addTodo(req.toEntity());
+    return TodoResponse.fromEntity(todo);
   }
 
   @Transactional
@@ -62,8 +75,14 @@ public class TodoService {
   }
 
   @Transactional
-  public List<TodoResponse> toggleComplete() {
-    todoRepository.toggleComplete();
+  public List<TodoResponse> completeAll() {
+    todoRepository.completeAll();
+    return todoRepository.findAllUnclearedTodos();
+  }
+
+  @Transactional
+  public List<TodoResponse> uncompleteAll() {
+    todoRepository.uncompleteAll();
     return todoRepository.findAllUnclearedTodos();
   }
 

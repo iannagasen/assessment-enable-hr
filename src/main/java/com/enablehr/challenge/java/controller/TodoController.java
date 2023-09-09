@@ -1,149 +1,70 @@
 package com.enablehr.challenge.java.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toCollection;
-
+import com.enablehr.challenge.java.dto.TodoBatchUpdateRequest;
+import com.enablehr.challenge.java.dto.TodoCreateRequest;
+import com.enablehr.challenge.java.dto.TodoResponse;
+import com.enablehr.challenge.java.dto.TodoUpdateRequest;
+import com.enablehr.challenge.java.exceptions.UnknownTodoActionException;
+import com.enablehr.challenge.java.service.TodoService;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/api")
 public class TodoController {
+  
+ private final TodoService todoService;
 
-  static final String COMPLETED = "completed";
-
-  static final String ID = "id";
-
-  static final String TEXT = "text";
-
-  private final List<Map<String, Object>> todos = new LinkedList<>();
-
-  private int counter = 0;
-
-  @RequestMapping(path = "/todos/clear", method = RequestMethod.POST)
-  public List<Map<String, Object>> clearCompleted() {
-
-    todos.removeIf(todo -> todo.get(COMPLETED) == Boolean.TRUE);
-
-    return todos;
+  public TodoController(TodoService todoService) {
+    this.todoService = todoService;
   }
 
-  @RequestMapping(path = "/todos/complete", method = RequestMethod.POST)
-  public List<Map<String, Object>> completeAll() {
-
-    boolean complete = todos.stream()
-                            .map(todo -> todo.get(COMPLETED))
-                            .anyMatch(Boolean.FALSE::equals);
-
-    todos.forEach(todo -> todo.put(COMPLETED, complete));
-
-    return todos;
+  @GetMapping("/todos")
+  public List<TodoResponse> getAllTodos() {
+    return todoService.getAllTodos();
   }
 
-  @RequestMapping(path = "/todo", method = RequestMethod.POST)
-  public Map<String, Object> create(@RequestBody Map<String, Object> body) {
-
-    Map<String, Object> todo = new HashMap<>();
-
-    todo.put(ID, counter++);
-    todo.put(COMPLETED, Boolean.FALSE);
-    todo.put(TEXT, body.get(TEXT));
-
-    todos.add(todo);
-
-    return todo;
+  @PostMapping("/todos")
+  public TodoResponse createTodo(@RequestBody TodoCreateRequest req) {
+    return todoService.create(req);
   }
 
-  @RequestMapping(path = "/todo", method = RequestMethod.DELETE)
-  public void delete(@RequestBody Map<String, Object> body) {
+  @PutMapping("/todos/{id}")
+  public TodoResponse updateTodo(@PathVariable Integer id, @RequestBody TodoUpdateRequest req) {
+    return todoService.update(id, req);
+  }
 
-    Integer id = (Integer) body.get(ID);
+  @DeleteMapping("/todos/{id}")
+  public void deleteTodo(@PathVariable Integer id) {
+    todoService.delete(id);
+  }
 
-    if (id != null) {
-      todos.removeIf(todo -> id.equals(todo.get(ID)));
+  @PatchMapping("/todos/{id}")
+  public TodoResponse updateCompleteTag(@PathVariable Integer id, @RequestParam boolean completed) {
+    return todoService.updateCompleteTag(id, completed);
+  }
+
+  @PutMapping("/todos")
+  public List<TodoResponse> executeTodoAction(@RequestBody TodoBatchUpdateRequest req) {
+    switch (req.getAction()) {
+      case "clear": return todoService.clearCompleted();
+      case "complete": return todoService.completeAll();
+      case "uncomplete": return todoService.uncompleteAll();
+      default: throw UnknownTodoActionException.withAction(req.getAction());
     }
   }
 
-  @PostConstruct
-  public void init() {
-
-    todos.clear();
-    counter = 0;
-
-    Stream.of("Use Redux", "Use React", "Pass the Test")
-          .map(text -> {
-            final HashMap<String, Object> todo = new HashMap<>();
-
-            todo.put(ID, counter++);
-            todo.put(COMPLETED, Boolean.FALSE);
-            todo.put(TEXT, text);
-
-            return todo;
-          })
-          .collect(toCollection(() -> todos));
-  }
-
-  @RequestMapping(path = "/todos", method = RequestMethod.GET)
-  public List<Map<String, Object>> list() {
-
-    return todos;
-  }
-
-  @RequestMapping(path = "/todo/complete", method = RequestMethod.POST)
-  public Map<String, Object> markAsComplete(@RequestBody Map<String, Object> body) {
-
-    Integer id = (Integer) body.get(ID);
-
-    Map<String, Object> changed = findById(id);
-
-    if (changed != null) {
-      final Boolean completed = (Boolean) changed.get(COMPLETED);
-      changed.put(COMPLETED, !completed);
-    }
-
-    return changed;
-  }
-
-  @RequestMapping(path = "/todo", method = RequestMethod.PUT)
-  public Map<String, Object> update(@RequestBody Map<String, Object> body) {
-
-    Integer id = (Integer) body.get(ID);
-
-    String text = (String) body.get(TEXT);
-
-    Map<String, Object> changed = findById(id);
-
-    if (changed != null) {
-      changed.put(TEXT, text);
-    }
-
-    return changed;
-  }
-
-  List<Map<String, Object>> getTodos() {
-
-    return todos;
-  }
-
-  private Map<String, Object> findById(Integer id) {
-
-    if (id == null) {
-      return null;
-    }
-
-    return todos.stream()
-                .filter(todo -> id.equals(todo.get(ID)))
-                .findFirst()
-                .orElse(null);
-  }
 }

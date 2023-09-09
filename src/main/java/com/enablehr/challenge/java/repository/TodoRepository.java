@@ -20,10 +20,12 @@ public interface TodoRepository extends JpaRepository<Todo, Integer> {
   @Modifying
   @Query("UPDATE Todo t SET t.cleared = true WHERE t.completed = true")
   void clearCompletedTodos();
+  
+  @Modifying
+  @Query("UPDATE Todo t SET t.completed = true")
+  void completeAll();
 
   @Modifying
-  @Query(
-    "Update Todo t SET t.completed = " + "\n" + 
-    "CASE WHEN EXISTS(SELECT 1 FROM Todo t2 WHERE t2.completed = false) THEN true ELSE false END")
-  void toggleComplete();
+  @Query("UPDATE Todo t SET t.completed = false")
+  void uncompleteAll();
 }

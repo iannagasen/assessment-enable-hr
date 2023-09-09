@@ -5,7 +5,7 @@ import com.enablehr.challenge.java.entity.Todo;
 public class TodoCreateRequest {
   private String text;
   private boolean isCompleted;
-
+  
   public Todo toEntity() {
     Todo todo = new Todo();
     todo.setCompleted(isCompleted);
@@ -15,7 +15,7 @@ public class TodoCreateRequest {
   
   // constructors, getters, setters
   public TodoCreateRequest() { }
-
+  
   public TodoCreateRequest(String text, boolean isCompleted) {
     this.text = text;
     this.isCompleted = isCompleted;

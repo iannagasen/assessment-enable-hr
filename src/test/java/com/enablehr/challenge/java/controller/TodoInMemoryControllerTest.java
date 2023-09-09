@@ -17,15 +17,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(TodoController.class)
+@WebMvcTest(TodoInMemoryController.class)
 @ExtendWith(SpringExtension.class)
-public class TodoControllerTest {
+public class TodoInMemoryControllerTest {
 
   @Autowired
   private MockMvc mvc;
 
   @Autowired
-  private TodoController subject;
+  private TodoInMemoryController subject;
 
   @BeforeEach
   public void setUp() {
@@ -40,8 +40,8 @@ public class TodoControllerTest {
 
     subject.getTodos()
            .stream()
-           .filter(todo -> ((Integer) todo.get(TodoController.ID)) % 2 == 0)
-           .forEach(todo -> todo.put(TodoController.COMPLETED, Boolean.TRUE));
+           .filter(todo -> ((Integer) todo.get(TodoInMemoryController.ID)) % 2 == 0)
+           .forEach(todo -> todo.put(TodoInMemoryController.COMPLETED, Boolean.TRUE));
 
     mvc.perform(post("/todos/clear").accept(APPLICATION_JSON))
        .andExpect(status().isOk())
@@ -72,7 +72,7 @@ public class TodoControllerTest {
   public void testCompleteAllWhenAllAreComplete() throws Exception {
 
     subject.getTodos()
-           .forEach(todo -> todo.put(TodoController.COMPLETED, Boolean.TRUE));
+           .forEach(todo -> todo.put(TodoInMemoryController.COMPLETED, Boolean.TRUE));
 
     mvc.perform(post("/todos/complete").accept(APPLICATION_JSON))
        .andExpect(status().isOk())
@@ -92,8 +92,8 @@ public class TodoControllerTest {
 
     subject.getTodos()
            .stream()
-           .filter(todo -> (Integer) todo.get(TodoController.ID) % 2 == 0)
-           .forEach(todo -> todo.put(TodoController.COMPLETED, Boolean.TRUE));
+           .filter(todo -> (Integer) todo.get(TodoInMemoryController.ID) % 2 == 0)
+           .forEach(todo -> todo.put(TodoInMemoryController.COMPLETED, Boolean.TRUE));
 
     mvc.perform(post("/todos/complete").accept(APPLICATION_JSON))
        .andExpect(status().isOk())
@@ -159,7 +159,7 @@ public class TodoControllerTest {
     subject.getTodos()
            .stream()
            .findFirst()
-           .ifPresent(todo -> todo.put(TodoController.COMPLETED, Boolean.TRUE));
+           .ifPresent(todo -> todo.put(TodoInMemoryController.COMPLETED, Boolean.TRUE));
 
     String json = "{\"id\":0}";
 
